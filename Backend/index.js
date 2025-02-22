@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-const serverless = require('serverless-http');
 
 const app = express();
 app.use(express.json());
@@ -25,22 +24,24 @@ db.connect(err => {
     }
 });
 
-// API Routes
-app.get('/api/users', (req, res) => {
+// Get all users
+app.get('/users', (req, res) => {
     db.query('SELECT * FROM users', (err, results) => {
         if (err) return res.status(500).json(err);
         res.json(results);
     });
 });
 
-app.get('/api/cars', (req, res) => {
+// Get all cars
+app.get('/cars', (req, res) => {
     db.query('SELECT * FROM cars', (err, results) => {
         if (err) return res.status(500).json(err);
         res.json(results);
     });
 });
 
-app.post('/api/users', (req, res) => {
+// Add a user
+app.post('/users', (req, res) => {
     const { username, gmail, profile, password } = req.body;
     const sql = 'INSERT INTO users (username, gmail, profile, password) VALUES (?, ?, ?, ?)';
     db.query(sql, [username, gmail, profile, password], (err, result) => {
@@ -49,7 +50,8 @@ app.post('/api/users', (req, res) => {
     });
 });
 
-app.post('/api/cars', (req, res) => {
+// Add a car
+app.post('/cars', (req, res) => {
     const { car, image, owner, prize, contact, ownerEmail } = req.body;
     const sql = 'INSERT INTO cars (car, image, owner, prize, contact, ownerEmail) VALUES (?, ?, ?, ?, ?, ?)';
     db.query(sql, [car, image, owner, prize, contact, ownerEmail], (err, result) => {
@@ -58,6 +60,8 @@ app.post('/api/cars', (req, res) => {
     });
 });
 
-// Export for Vercel
-module.exports = app;
-module.exports.handler = serverless(app);
+// Start the server
+const PORT = process.env.PORT  || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
